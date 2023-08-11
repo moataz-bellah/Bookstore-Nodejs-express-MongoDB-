@@ -1,0 +1,10 @@
+const path = require('path');
+const express = require('express');
+const bookStoreController = require('../controllers/bookstore');
+const router = express.Router();
+router.get('/reservation_summary/:bookId', bookStoreController.getReservate);
+router.post('/reserve_book', bookStoreController.postReserveBook);
+router.get('/access-book/:bookId', bookStoreController.getBookContent);
+router.get('/:bookId', bookStoreController.getBookDetail);
+router.get('/', bookStoreController.getBooks);
+module.exports = router;
