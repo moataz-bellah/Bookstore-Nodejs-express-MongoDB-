@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 exports.getRegister = (req, res, next) => {
-    res.render('register', {});
+    res.render('register', { isLoggedIn: false });
 }
 
 exports.postRegister = (req, res, next) => {
@@ -24,7 +24,7 @@ exports.postRegister = (req, res, next) => {
 }
 
 exports.getLogin = (req, res, next) => {
-    res.render('login', {});
+    res.render('login', { isLoggedIn: false });
 }
 
 exports.postLogin = (req, res, next) => {
@@ -36,11 +36,22 @@ exports.postLogin = (req, res, next) => {
         } else {
             bcrypt.compare(password, user.password).then(isMatch => {
                 if (isMatch) {
-                    res.redirect('/');
+                    req.session.isLoggedIn = true;
+                    req.session.user = user;
+                    return req.session.save(err => {
+                        res.redirect('/');
+                    });
                 } else {
                     res.redirect('/');
                 }
             }).catch(err => { console.log(err); })
         }
     }).catch(err => { console.log(err); });
-}
+};
+exports.postLogout = (req, res, next) => {
+    console.log('SUIIIIIIIIIIIII');
+    req.session.destroy(err => {
+        console.log(err);
+        res.redirect('/login');
+    });
+};

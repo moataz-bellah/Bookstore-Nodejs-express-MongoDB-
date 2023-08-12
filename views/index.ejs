@@ -1,4 +1,4 @@
-﻿<%- include('./includes/head.ejs') %>
+﻿<%- include('./includes/head.ejs', {isLoggedIn: isLoggedIn}) %>
     <div id="mainBody">
         <div class="container">
             <div class="row">
@@ -41,7 +41,7 @@
                             <% for(let book of books){ %>
                                 <li class="span3">
                                     <div class="thumbnail">
-                                        <a href="/<%= book._id %>"><img src="<%= book.imageUrl %>" alt="" /></a>
+                                        <a href="/<%= book._id %>"><img class="image-card" src="<%= book.imageUrl %>" alt="" /></a>
                                         <div class="caption">
                                             <h5>
                                                 <%= book.title %>

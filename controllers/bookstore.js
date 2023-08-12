@@ -3,9 +3,12 @@ const User = require('../models/user');
 const fs = require('fs');
 const path = require('path');
 exports.getBooks = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     Book.fetchAllBooks().then(books => {
         console.log(books);
-        res.render('index', { books: books, pageTitle: 'Books' });
+        res.render('index', { books: books, pageTitle: 'Books', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
     }).catch(err => {
         console.log(err);
     });
@@ -13,10 +16,13 @@ exports.getBooks = (req, res, next) => {
 
 
 exports.getBookDetail = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     const bookId = req.params.bookId;
 
     Book.findBookById(bookId).then(book => {
-        User.findUserByEmail('test@gmail.com').then(user => {
+        User.findUserByEmail(req.user.email).then(user => {
 
             if (user) {
                 const newUser = new User(user._id, user.username, user.email, user.password, user.library, user.cart);
@@ -35,6 +41,9 @@ exports.getBookDetail = (req, res, next) => {
 }
 
 exports.getReservate = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     const bookId = req.params.bookId;
     console.log(bookId);
     Book.findBookById(bookId).then(book => {
@@ -55,11 +64,14 @@ exports.getReservate = (req, res, next) => {
 }
 
 exports.postReserveBook = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     const bookId = req.body.bookId;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
     Book.findBookById(bookId).then(book => {
-        User.findUserByEmail('test@gmail.com').then(user => {
+        User.findUserByEmail(req.user.email).then(user => {
             if (user) {
                 user = new User(user._id, user.username, user.email, user.password, user.library, user.cart);
                 user.reserveBook(book, startDate, endDate);
@@ -79,6 +91,9 @@ exports.postReserveBook = (req, res, next) => {
     });
 };
 exports.getBookContent = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.redirect('/login');
+    }
     const bookId = req.params.bookId;
     Book.findBookById(bookId).then(book => {
         if (book) {
