@@ -1,5 +1,6 @@
 const mongodb = require('mongodb');
 const getDb = require('../util/db_connection').getDb;
+const Book = require('./book');
 
 class User {
     constructor(id, username, email, password, library, cart) {
@@ -24,15 +25,12 @@ class User {
         //const currentDate = new Date();
         startDate = new Date(startDate);
         endDate = new Date(endDate);
-        console.log(endDate);
         //const endDate = currentDate.setDate(currentDate.getDate() + 15);
         this.library.push({ bookId: book._id, startData: startDate, endDate: endDate, expired: false });
     }
     foundInLibrary(bookId) {
 
         const bookIndex = this.library.findIndex(book => book.bookId.toString() === bookId.toString());
-        console.log(bookIndex);
-        console.log(this.library);
         if (bookIndex >= 0) {
             return true;
         }
@@ -54,10 +52,18 @@ class User {
         const db = getDb();
         return db.collection('users').findOne({ _id: new mongodb.ObjectId(id) });
     }
+    fetchMyLibrary() {
+        return this.library;
+    }
+    popBookFromLibrary(bookId) {
+        this.library = this.library.filter(b => b.bookId !== bookId);
+        return this.save();
+    }
     static findUserByEmail(email) {
         const db = getDb();
         return db.collection('users').findOne({ email: email });
     }
+
 }
 
 module.exports = User;

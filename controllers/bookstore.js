@@ -7,7 +7,6 @@ exports.getBooks = (req, res, next) => {
         return res.redirect('/login');
     }
     Book.fetchAllBooks().then(books => {
-        console.log(books);
         res.render('index', { books: books, pageTitle: 'Books', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
     }).catch(err => {
         console.log(err);
@@ -27,9 +26,9 @@ exports.getBookDetail = (req, res, next) => {
             if (user) {
                 const newUser = new User(user._id, user.username, user.email, user.password, user.library, user.cart);
                 if (newUser.foundInLibrary(bookId) && !newUser.isExpired(bookId)) {
-                    res.render('book_details', { book: book, expired: false, pageTitle: 'Book Details' });
+                    res.render('book_details', { book: book, expired: false, pageTitle: 'Book Details', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
                 } else {
-                    res.render('book_details', { book: book, expired: true, pageTitle: 'Book Details' });
+                    res.render('book_details', { book: book, expired: true, pageTitle: 'Book Details', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
                 }
             }
         }).catch(err => {
@@ -38,21 +37,20 @@ exports.getBookDetail = (req, res, next) => {
 
     }).catch(err => { console.log(err) });
 
-}
+};
 
 exports.getReservate = (req, res, next) => {
     if (!req.session.isLoggedIn) {
         return res.redirect('/login');
     }
     const bookId = req.params.bookId;
-    console.log(bookId);
     Book.findBookById(bookId).then(book => {
         if (book) {
             const d = new Date();
             const startDate = d.toDateString();
             const endDate = new Date(d.setDate(d.getDate() + 15));
 
-            res.render('book_summary', { book: book, startDate: startDate, endDate: endDate.toDateString() });
+            res.render('book_summary', { book: book, startDate: startDate, endDate: endDate.toDateString(), isLoggedIn: req.session.isLoggedIn, user: req.user.username });
         } else {
             res.redirect('/');
         }
@@ -61,7 +59,7 @@ exports.getReservate = (req, res, next) => {
         console.log(err);
     })
 
-}
+};
 
 exports.postReserveBook = (req, res, next) => {
     if (!req.session.isLoggedIn) {
@@ -98,7 +96,6 @@ exports.getBookContent = (req, res, next) => {
     Book.findBookById(bookId).then(book => {
         if (book) {
             const bookFilePath = book.bookPdf;
-            console.log(bookFilePath);
             res.render('pdf_viewer', { book: bookFilePath });
             //            const file = fs.createReadStream(bookFilePath);
             // const file = fs.readFile(bookFilePath, (err, data) => {
@@ -117,4 +114,20 @@ exports.getBookContent = (req, res, next) => {
         console.log(err);
     });
 
+};
+
+
+exports.getLibrary = (req, res, next) => {
+    const user = new User(req.user._id, req.user.username, req.user.email, req.user.password, req.user.library, req.user.cart);
+    const myLibrary = user.fetchMyLibrary();
+    const myLibraryBooks = [];
+    for (const book_id of myLibrary) {
+        Book.findBookById(book_id.bookId).then(book => {
+            myLibraryBooks.push(book);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+    console.log(myLibraryBooks);
+    res.render('library', { myLibrary: myLibrary, isLoggedIn: req.session.isLoggedIn, user: user.username });
 };

@@ -5,6 +5,7 @@ const router = express.Router();
 router.get('/reservation_summary/:bookId', bookStoreController.getReservate);
 router.post('/reserve_book', bookStoreController.postReserveBook);
 router.get('/access-book/:bookId', bookStoreController.getBookContent);
+router.get('/my-library', bookStoreController.getLibrary);
 router.get('/:bookId', bookStoreController.getBookDetail);
 router.get('/', bookStoreController.getBooks);
 module.exports = router;

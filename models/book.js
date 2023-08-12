@@ -2,7 +2,7 @@ const books = [];
 const mongodb = require('mongodb');
 const getDb = require('../util/db_connection').getDb;
 class Book {
-    constructor(id, title, price, description, imageUrl, author, category,bookPdf) {
+    constructor(id, title, price, description, imageUrl, author, category, bookPdf) {
         this._id = id ? new mongodb.ObjectId(id) : null;
         this.title = title;
         this.price = price;
@@ -10,12 +10,13 @@ class Book {
         this.imageUrl = imageUrl;
         this.author = author;
         this.category = category;
-        this.bookPdf =  bookPdf;
+        this.bookPdf = bookPdf;
     }
     save() {
+
         const db = getDb();
         if (this._id) {
-
+            return db.collection('books').updateOne({ _id: this._id }, { $set: this });
         } else {
             return db.collection('books').insertOne(this);
         }
@@ -34,11 +35,7 @@ class Book {
     }
     static deleteBookById(id) {
         const db = getDb();
-        return db.collection('books').find({ _id: new mongodb.ObjectId(id) }).toArray().then(books => {
-
-        }).catch(err => {
-            console.log(err);
-        });
+        return db.collection('books').deleteOne({ _id: new mongodb.ObjectId(id) });
     }
 }
 module.exports = Book;
