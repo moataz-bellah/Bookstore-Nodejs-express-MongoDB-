@@ -3,13 +3,14 @@ const getDb = require('../util/db_connection').getDb;
 const Book = require('./book');
 
 class User {
-    constructor(id, username, email, password, library, cart) {
+    constructor(id, username, email, password, library, cart, isAdmin) {
         this._id = id ? new mongodb.ObjectId(id) : null;
         this.username = username;
         this.email = email;
         this.password = password;
         this.library = library;
         this.cart = cart;
+        this.isAdmin = isAdmin;
     }
     save() {
         const db = getDb();

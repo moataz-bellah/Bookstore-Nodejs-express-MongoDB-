@@ -1,7 +1,9 @@
 const Book = require('../models/book');
 const User = require('../models/user');
+const Reservation = require('../models/reservation');
 const fs = require('fs');
 const path = require('path');
+
 exports.getBooks = (req, res, next) => {
     if (!req.session.isLoggedIn) {
         return res.redirect('/login');
@@ -71,10 +73,17 @@ exports.postReserveBook = (req, res, next) => {
     Book.findBookById(bookId).then(book => {
         User.findUserByEmail(req.user.email).then(user => {
             if (user) {
+                const reservation = new Reservation(null, user.email, bookId, startDate, endDate);
+
                 user = new User(user._id, user.username, user.email, user.password, user.library, user.cart);
                 user.reserveBook(book, startDate, endDate);
                 user.save().then(result => {
-                    res.redirect('/');
+                    reservation.save().then(result => {
+                        res.redirect('/');
+                    }).catch(err => {
+                        console.log(err);
+                    });
+
                 }).catch(err => {
                     console.log(err);
                 });

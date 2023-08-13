@@ -1,4 +1,7 @@
 const Book = require('../models/book');
+const Reservation = require('../models/reservation');
+const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 exports.getAddBook = (req, res, next) => {
     res.render('admin/edit-book', { editing: false, pageTitle: 'Add Book', path: '/admin/add-book' });
 }
@@ -81,4 +84,65 @@ exports.postDeleteBook = (req, res, next) => {
     }).catch(err => {
         console.log(err);
     });
+};
+
+exports.getReservations = (req, res, next) => {
+    Reservation.fetchAll().then(reservations => {
+        res.render('admin/reservations', { reservations: reservations, pageTitle: 'Rservations', path: '/admin/reservation' });
+    }).catch(err => {
+        console.log(err);
+    });
+};
+
+exports.getAdminSignup = (req, res, next) => {
+    res.render('admin/signup', { pageTitle: 'Signup', path: '/admin/signup' });
+};
+
+exports.postAdminSignup = (req, res, next) => {
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+    User.findUserByEmail(email).then(user => {
+        if (user) {
+            res.redirect('signup');
+        } else {
+            bcrypt.hash(password, 12).then(hashedPassword => {
+                const newUser = new User(null, username, email, hashedPassword, null, null, true);
+                newUser.save().then(result => {
+                    res.redirect('books');
+                }).catch(err => { console.log(err); });
+            }).catch(err => { console.log(err); });
+        }
+    }).catch(err => { console.log(err); });
+};
+exports.getAdminLogin = (req, res, next) => {
+    res.render('admin/login', { pageTitle: 'Login', path: '/admin/login' });
+};
+
+exports.postAdminLogin = (req, res, next) => {
+    exports.postLogin = (req, res, next) => {
+        const email = req.body.email;
+        const password = req.body.password;
+        User.findUserByEmail(email).then(user => {
+            if (!user) {
+                res.redirect('admin-login');
+            } else if (!user.isAdmin) {
+                res.redirect('admin-login');
+            } else {
+
+                bcrypt.compare(password, user.password).then(isMatch => {
+                    if (isMatch) {
+                        req.session.isLoggedIn = true;
+                        req.session.user = user;
+                        return req.session.save(err => {
+                            res.redirect('books');
+                        });
+                    } else {
+                        res.redirect('admin-login');
+                    }
+                }).catch(err => { console.log(err); })
+            }
+        }).catch(err => { console.log(err); });
+    };
 };

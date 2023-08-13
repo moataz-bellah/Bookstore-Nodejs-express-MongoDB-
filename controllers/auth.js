@@ -14,18 +14,18 @@ exports.postRegister = (req, res, next) => {
             res.redirect('/register');
         } else {
             bcrypt.hash(password, 12).then(hashedPassword => {
-                const newUser = new User(null, username, email, hashedPassword, [], []);
+                const newUser = new User(null, username, email, hashedPassword, [], [], false);
                 newUser.save().then(result => {
                     res.redirect('/');
                 }).catch(err => { console.log(err); });
             }).catch(err => { console.log(err); });
         }
     }).catch(err => { console.log(err); });
-}
+};
 
 exports.getLogin = (req, res, next) => {
     res.render('login', { isLoggedIn: false });
-}
+};
 
 exports.postLogin = (req, res, next) => {
     const email = req.body.email;
