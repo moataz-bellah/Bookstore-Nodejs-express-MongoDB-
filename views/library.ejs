@@ -8,13 +8,10 @@
                     <div class="span9">
                         <ul class="breadcrumb">
                             <li><a href="index.html">Home</a> <span class="divider">/</span></li>
-                            <li class="active">Products Name</li>
+                            <li class="active">My-Library</li>
                         </ul>
-                        <h3> Products Name <small class="pull-right"> 40 products are available </small></h3>
+                        <h3> My Library <small class="pull-right"> <%= myLibrary.length %> books available </small></h3>
                         <hr class="soft" />
-                        <p>
-                            Nowadays the lingerie industry is one of the most successful business spheres.We always stay in touch with the latest fashion tendencies - that is why our goods are so popular and we have a great number of faithful customers all over the country.
-                        </p>
                         <hr class="soft" />
                         <form class="form-horizontal span6">
                             <div class="control-group">
@@ -209,16 +206,16 @@
                                     <% for(let book of myLibrary) { %>
                                         <li class="span3">
                                             <div class="thumbnail">
-                                                <a href="/<%= book._id %>"><img src="" alt="" /></a>
+                                                <a href="/<%= book.book._id %>"><img src="<%= book.book.imageUrl %>" alt="<%= book.book.title %>" /></a>
                                                 <div class="caption">
                                                     <h5>
-                                                        <%= book.bookId %>
+                                                        <%= book.book.title %>
                                                     </h5>
                                                     <strong>
                                                         <%= book.startDate %>
 													</strong>
                                                     <h4 style="text-align:center">
-                                                        <a class="btn" href="/<%= book.bookId %>"> <i class="icon-zoom-in"></i></a> <a class="btn" href="/<%= book.bookId %>">View </a> <a class="btn btn-primary" href="/access-book/<%= book.bookId %>">Access</a></h4>
+                                                        <a class="btn" href="/<%= book.book._id %>"> <i class="icon-zoom-in"></i></a> <a class="btn" href="/<%= book.book._id %>">View </a> <a class="btn btn-primary" href="/access-book/<%= book.book._id %>">Access</a></h4>
                                                 </div>
                                             </div>
                                         </li>

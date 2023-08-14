@@ -27,18 +27,22 @@ class User {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
         //const endDate = currentDate.setDate(currentDate.getDate() + 15);
-        this.library.push({ bookId: book._id, startData: startDate, endDate: endDate, expired: false });
+        this.library.push({ book: book, startDate: startDate, endDate: endDate, expired: false });
     }
     foundInLibrary(bookId) {
+        console.log(bookId);
+        const bookIndex = this.library.findIndex(book => {
 
-        const bookIndex = this.library.findIndex(book => book.bookId.toString() === bookId.toString());
+            return book.book._id.toString() === bookId.toString()
+        });
+        console.log(bookIndex);
         if (bookIndex >= 0) {
             return true;
         }
         return false;
     }
     isExpired(bookId) {
-        const book = this.library.find(b => b.bookId.toString() === bookId.toString());
+        const book = this.library.find(b => b.book._id.toString() === bookId.toString());
         const currentDate = new Date().getTime();
         if (currentDate > book.endDate.getTime()) {
             return true;

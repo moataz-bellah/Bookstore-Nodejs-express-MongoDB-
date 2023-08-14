@@ -21,13 +21,15 @@ exports.getBookDetail = (req, res, next) => {
         return res.redirect('/login');
     }
     const bookId = req.params.bookId;
-
+    console.log(bookId);
     Book.findBookById(bookId).then(book => {
         User.findUserByEmail(req.user.email).then(user => {
 
             if (user) {
                 const newUser = new User(user._id, user.username, user.email, user.password, user.library, user.cart);
+
                 if (newUser.foundInLibrary(bookId) && !newUser.isExpired(bookId)) {
+
                     res.render('book_details', { book: book, expired: false, pageTitle: 'Book Details', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
                 } else {
                     res.render('book_details', { book: book, expired: true, pageTitle: 'Book Details', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
@@ -129,14 +131,6 @@ exports.getBookContent = (req, res, next) => {
 exports.getLibrary = (req, res, next) => {
     const user = new User(req.user._id, req.user.username, req.user.email, req.user.password, req.user.library, req.user.cart);
     const myLibrary = user.fetchMyLibrary();
-    const myLibraryBooks = [];
-    for (const book_id of myLibrary) {
-        Book.findBookById(book_id.bookId).then(book => {
-            myLibraryBooks.push(book);
-        }).catch(err => {
-            console.log(err);
-        });
-    }
-    console.log(myLibraryBooks);
+
     res.render('library', { myLibrary: myLibrary, isLoggedIn: req.session.isLoggedIn, user: user.username });
 };
