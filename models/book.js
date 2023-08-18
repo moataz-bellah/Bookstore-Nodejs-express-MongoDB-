@@ -34,8 +34,18 @@ class Book {
         return db.collection('books').find({ _id: new mongodb.ObjectId(id) }).next();
     }
     static deleteBookById(id) {
+            const db = getDb();
+            return db.collection('books').deleteOne({ _id: new mongodb.ObjectId(id) });
+        }
+        // for pagination
+    static fetchForPagination(pageNumber, itemsPerPage) {
         const db = getDb();
-        return db.collection('books').deleteOne({ _id: new mongodb.ObjectId(id) });
+        return db.collection('books').find().skip((pageNumber - 1) * itemsPerPage).limit(itemsPerPage).toArray();
+    }
+    static getCount() {
+        const db = getDb();
+        return db.collection('books').countDocuments({});
+
     }
 }
 module.exports = Book;

@@ -3,16 +3,51 @@ const User = require('../models/user');
 const Reservation = require('../models/reservation');
 const fs = require('fs');
 const path = require('path');
-
+const ITEMTS_PER_PAGE = 4;
 exports.getBooks = (req, res, next) => {
+
     if (!req.session.isLoggedIn) {
         return res.redirect('/login');
     }
-    Book.fetchAllBooks().then(books => {
-        res.render('index', { books: books, pageTitle: 'Books', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
-    }).catch(err => {
-        console.log(err);
+    let page = +req.query.page;
+
+    if (!page) {
+        page = 1;
+    }
+    let totalNumber;
+    Book.getCount().then(num => {
+        totalNumber = num;
+    }).then(result => {
+        Book.fetchForPagination(page, ITEMTS_PER_PAGE).then(books => {
+            const hasPrevous = page > 1;
+            const hasNext = (page * ITEMTS_PER_PAGE) < totalNumber;
+            console.log('page ', page);
+            console.log('TOTAL NUMBER ', totalNumber);
+            console.log('has NEXT ', hasNext);
+            res.render('index', {
+                books: books,
+                pageTitle: 'Books',
+                isLoggedIn: req.session.isLoggedIn,
+                user: req.user.username,
+                hasPrevous: hasPrevous,
+                hasNext: hasNext,
+                nextPage: page + 1,
+                prevPage: page - 1,
+                currentPage: page,
+                totalNumber: totalNumber,
+                lastPage: Math.ceil(totalNumber / ITEMTS_PER_PAGE)
+            });
+        }).catch(err => {
+            console.log(err);
+        })
     });
+
+
+    // Book.fetchAllBooks().then(books => {
+    //     res.render('index', { books: books, pageTitle: 'Books', isLoggedIn: req.session.isLoggedIn, user: req.user.username });
+    // }).catch(err => {
+    //     console.log(err);
+    // });
 };
 
 
