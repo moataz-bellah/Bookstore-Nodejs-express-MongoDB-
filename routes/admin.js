@@ -9,7 +9,7 @@ router.post('/add-book', adminController.postAddBook);
 router.get('/books', adminController.getBooks);
 router.get('/edit-book/:bookId', adminController.getEditBook);
 router.post('/edit-book', adminController.postEditBook);
-router.post('/delete-book', adminController.postDeleteBook);
+router.delete('/delete-book/:bookId', adminController.postDeleteBook);
 router.get('/reservations', adminController.getReservations);
 router.get('/signup', adminController.getAdminSignup);
 router.post('/signup', adminController.postAdminSignup);

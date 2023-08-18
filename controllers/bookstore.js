@@ -21,9 +21,6 @@ exports.getBooks = (req, res, next) => {
         Book.fetchForPagination(page, ITEMTS_PER_PAGE).then(books => {
             const hasPrevous = page > 1;
             const hasNext = (page * ITEMTS_PER_PAGE) < totalNumber;
-            console.log('page ', page);
-            console.log('TOTAL NUMBER ', totalNumber);
-            console.log('has NEXT ', hasNext);
             res.render('index', {
                 books: books,
                 pageTitle: 'Books',

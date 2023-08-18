@@ -6,10 +6,12 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const MongoURI = 'mongodb+srv://whoami:dG1awObaBeCC87ur@cluster0.dqdhphe.mongodb.net/bookstore?retryWrites=true&w=majority';
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const csrf = require('csurf');
 const dbConnection = require('./util/db_connection').mongoConnection;
 const DB = require('./util/db_connection').getDb;
 const store = new MongoDBStore({ uri: MongoURI, collection: 'sessions' });
 const User = require('./models/user');
+const csrfProtection = csrf();
 // const fileStorage = multer.diskStorage({destination:(req,file,cb)=>{
 //     cb(null,'images');
 // },filename:(req,file,cb)=>{
@@ -17,6 +19,7 @@ const User = require('./models/user');
 // }});
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'views')));
 app.use(session({ secret: 'my secret', resave: false, saveUninitialized: false, store: store }));
@@ -28,6 +31,7 @@ app.use(multer({ dest: 'pdfs' }).single('pdfFile'));
 const adminRoutes = require('./routes/admin');
 const bookStoreRoutes = require('./routes/bookstore');
 const authRoutes = require('./routes/auth');
+
 app.use((req, res, next) => {
     if (!req.session.user) {
         return next();
@@ -36,6 +40,11 @@ app.use((req, res, next) => {
         req.user = user;
         next();
     }).catch(err => { console.log(err); });
+});
+app.use(csrfProtection);
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
 });
 app.use('/admin', adminRoutes);
 app.use(authRoutes);

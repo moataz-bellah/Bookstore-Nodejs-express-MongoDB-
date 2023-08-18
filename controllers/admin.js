@@ -3,10 +3,16 @@ const Reservation = require('../models/reservation');
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 exports.getAddBook = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     res.render('admin/edit-book', { editing: false, pageTitle: 'Add Book', path: '/admin/add-book' });
 }
 
 exports.postAddBook = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     const title = req.body.title;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
@@ -30,6 +36,9 @@ exports.postAddBook = (req, res, next) => {
 };
 
 exports.getBooks = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     Book.fetchAllBooks().then(books => {
         res.render('admin/books', { books: books, pageTitle: 'Books', path: '/admin/books' });
     }).catch(err => {
@@ -39,6 +48,9 @@ exports.getBooks = (req, res, next) => {
 }
 
 exports.getEditBook = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     const bookId = req.params.bookId;
     Book.findBookById(bookId).then(book => {
         if (book) {
@@ -50,6 +62,9 @@ exports.getEditBook = (req, res, next) => {
 };
 
 exports.postEditBook = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     const bookId = req.body.bookId;
     const updatedTitle = req.body.title;
     const updatedImageUrl = req.body.imageUrl;
@@ -78,15 +93,22 @@ exports.postEditBook = (req, res, next) => {
 };
 
 exports.postDeleteBook = (req, res, next) => {
-    const bookId = req.body.bookId;
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
+    const bookId = req.params.bookId;
+    console.log('HEY I CAME HERE ', bookId);
     Book.deleteBookById(bookId).then(result => {
-        res.redirect('books');
+        res.status(200).json({ message: 'Success!' });
     }).catch(err => {
-        console.log(err);
+        res.status(500).json({ message: 'Deleting book failed' });
     });
 };
 
 exports.getReservations = (req, res, next) => {
+    if (!req.session.isLoggedIn || !req.session.user.isAdmin) {
+        return res.redirect('admin-login');
+    }
     Reservation.fetchAll().then(reservations => {
         res.render('admin/reservations', { reservations: reservations, pageTitle: 'Rservations', path: '/admin/reservation' });
     }).catch(err => {
@@ -95,6 +117,7 @@ exports.getReservations = (req, res, next) => {
 };
 
 exports.getAdminSignup = (req, res, next) => {
+
     res.render('admin/signup', { pageTitle: 'Signup', path: '/admin/signup' });
 };
 
@@ -121,28 +144,26 @@ exports.getAdminLogin = (req, res, next) => {
 };
 
 exports.postAdminLogin = (req, res, next) => {
-    exports.postLogin = (req, res, next) => {
-        const email = req.body.email;
-        const password = req.body.password;
-        User.findUserByEmail(email).then(user => {
-            if (!user) {
-                res.redirect('admin-login');
-            } else if (!user.isAdmin) {
-                res.redirect('admin-login');
-            } else {
 
-                bcrypt.compare(password, user.password).then(isMatch => {
-                    if (isMatch) {
-                        req.session.isLoggedIn = true;
-                        req.session.user = user;
-                        return req.session.save(err => {
-                            res.redirect('books');
-                        });
-                    } else {
-                        res.redirect('admin-login');
-                    }
-                }).catch(err => { console.log(err); })
-            }
-        }).catch(err => { console.log(err); });
-    };
+    const email = req.body.email;
+    const password = req.body.password;
+    User.findUserByEmail(email).then(user => {
+        if (!user) {
+            res.redirect('admin-login');
+        } else if (!user.isAdmin) {
+            res.redirect('admin-login');
+        } else {
+            bcrypt.compare(password, user.password).then(isMatch => {
+                if (isMatch) {
+                    req.session.isLoggedIn = true;
+                    req.session.user = user;
+                    return req.session.save(err => {
+                        res.redirect('books');
+                    });
+                } else {
+                    res.redirect('admin-login');
+                }
+            }).catch(err => { console.log(err); })
+        }
+    }).catch(err => { console.log(err); });
 };
